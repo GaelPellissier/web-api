@@ -3,12 +3,11 @@ package com.wapps.homestock.webapi.model.container;
 import com.wapps.homestock.webapi.model.Account;
 import com.wapps.homestock.webapi.model.AccountType;
 
-public class AccountPOJO {
+public class AccountPOJO extends BasePOJO {
     private Account mAccount;
     private AccountType mAccountType;
 
-    public AccountPOJO() {
-    }
+    public AccountPOJO() {}
 
     public AccountPOJO(Account account, AccountType accountType) {
         mAccount = account;

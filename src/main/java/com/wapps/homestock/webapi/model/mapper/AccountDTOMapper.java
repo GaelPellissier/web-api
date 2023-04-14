@@ -5,10 +5,11 @@ import com.wapps.homestock.webapi.model.container.AccountPOJO;
 import com.wapps.homestock.webapi.model.Account;
 import com.wapps.homestock.webapi.model.AccountType;
 
-public class AccountDTOMapper {
+public class AccountDTOMapper implements BaseDTOMapper<AccountPOJO, AccountDTO> {
 
     public AccountDTO convertToDTO(AccountPOJO pojo) {
         AccountDTO dto = new AccountDTO();
+
         dto.setId(pojo.getAccount().getId());
         dto.setUsername(pojo.getAccount().getUserName());
         dto.setPassword(pojo.getAccount().getPassword());
@@ -26,6 +27,7 @@ public class AccountDTOMapper {
 
     public AccountPOJO convertToPOJO(AccountDTO dto) {
         AccountPOJO pojo = new AccountPOJO();
+
         Account account = new Account();
         account.setId(dto.getId());
         account.setTypeId(dto.getTypeId());
