@@ -121,9 +121,12 @@ public class AccountDTOController {
     }
 
     @DeleteMapping("/account/{id}")
-    public void deleteAccount(@PathVariable("id") final Long id) throws NotFoundException {
-        if (mAccountService.getAccount(id).isEmpty())
-            throw new NotFoundException("");
-        mAccountService.deleteEmployee(id);
+    public ResponseEntity deleteAccount(@PathVariable("id") final Long id) throws NotFoundException {
+        try {
+            mAccountService.deleteEmployee(id);
+            return new ResponseEntity(null, HttpStatus.FOUND);
+        } catch (NotFoundException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 }
