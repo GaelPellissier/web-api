@@ -66,7 +66,7 @@ public class AccountDTOController {
     }
 
     @GetMapping("/accounts")
-    public Iterable<AccountDTO> getAccounts() throws NotFoundException {
+    public ResponseEntity getAccounts() throws NotFoundException {
         Iterable<Account> accountList = mAccountService.getAccounts();
         Iterable<AccountType>typelist = mAccountTypeService.getAccountTypes();
         List<AccountDTO> dtoList = new ArrayList<>();
@@ -82,11 +82,11 @@ public class AccountDTOController {
             dtoList.add(mAccountMapper.convertToDTO(item));
         });
 
-        return dtoList;
+        return new ResponseEntity(dtoList, HttpStatus.FOUND);
     }
 
     @PutMapping("/account/{id}")
-    public AccountDTO updateAccount(@PathVariable("id") final Long id, @RequestBody AccountDTO accountDTO) throws NotFoundException {
+    public ResponseEntity updateAccount(@PathVariable("id") final Long id, @RequestBody AccountDTO accountDTO) throws NotFoundException {
         Optional<Account> a = mAccountService.getAccount(id);
         if (a.isPresent()) {
             AccountPOJO pojo = mAccountMapper.convertToPOJO(accountDTO);
@@ -114,7 +114,7 @@ public class AccountDTOController {
             mAccountService.updateAccount(currentAccount);
 
             pojo.setAccount(currentAccount);
-            return mAccountMapper.convertToDTO(pojo);
+            return new ResponseEntity(mAccountMapper.convertToDTO(pojo), HttpStatus.FOUND);
         }
         else
             return null;
