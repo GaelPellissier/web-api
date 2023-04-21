@@ -26,6 +26,9 @@ public class ContainerService {
         throw new NotFoundException(GET, "container", id.toString());
     }
 
+    public Iterable<Container> getContainersByLocationId(final Long locationId) {
+        return mContainer.findByLocationId(locationId);
+    }
     public Iterable<Container> getContainers() {
         return mContainer.findAll();
     }

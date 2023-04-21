@@ -12,6 +12,8 @@ public class Container {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "location_id")
+    private Long locationId;
     private String name;
     private String description;
     @Column(name = "creation_date")

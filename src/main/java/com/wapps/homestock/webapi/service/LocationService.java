@@ -26,6 +26,10 @@ public class LocationService {
         throw new NotFoundException(GET, "location", id.toString());
     }
 
+    public Iterable<Location> getLocationsByRealmId(final Long realmId) {
+        return mLocation.findByRealmId(realmId);
+    }
+
     public Iterable<Location> getLocations() {
         return mLocation.findAll();
     }

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IContainer extends CrudRepository<Container, Long> {
+    Iterable<Container> findByLocationId(Long locationId);
 }

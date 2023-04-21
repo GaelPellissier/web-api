@@ -12,6 +12,8 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "realm_id")
+    private Long realmId;
     private String name;
     private String description;
     @Column(name = "creation_date")

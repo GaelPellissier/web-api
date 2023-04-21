@@ -7,6 +7,7 @@ import com.wapps.homestock.lib.exception.NotFoundException;
 import com.wapps.homestock.webapi.model.Currency;
 import com.wapps.homestock.webapi.model.Realm;
 import com.wapps.homestock.webapi.model.container.RealmPOJO;
+import com.wapps.homestock.webapi.model.mapper.GlobalItemDTOMapper;
 import com.wapps.homestock.webapi.model.mapper.RealmDTOMapper;
 import com.wapps.homestock.webapi.service.CurrencyService;
 import com.wapps.homestock.webapi.service.RealmService;
@@ -26,7 +27,10 @@ public class RealmDTOController extends BaseController {
     @Autowired
     private CurrencyService mCurrencyService;
     private final RealmDTOMapper mRealmMapper;
-    public RealmDTOController() { mRealmMapper = new RealmDTOMapper(); }
+    private final GlobalItemDTOMapper mGlobalItemDTOMapper;
+    public RealmDTOController() {
+        mGlobalItemDTOMapper = new GlobalItemDTOMapper();
+        mRealmMapper = new RealmDTOMapper(mGlobalItemDTOMapper); }
 
     @PostMapping("/realm")
     public ResponseEntity createRealm(@RequestBody RealmDTO realmDTO) throws AlreadyExistsException, NotFoundException {

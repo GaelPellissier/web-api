@@ -1,11 +1,22 @@
 package com.wapps.homestock.webapi.model.mapper;
 
+import com.wapps.homestock.lib.dto.GlobalItemDTO;
 import com.wapps.homestock.lib.dto.RealmDTO;
 import com.wapps.homestock.webapi.model.Currency;
+import com.wapps.homestock.webapi.model.GlobalItem;
 import com.wapps.homestock.webapi.model.Realm;
 import com.wapps.homestock.webapi.model.container.RealmPOJO;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RealmDTOMapper implements BaseDTOMapper<RealmPOJO, RealmDTO> {
+    private final GlobalItemDTOMapper mGlobalItemDTOMapper;
+
+    public RealmDTOMapper(GlobalItemDTOMapper globalItemDTOMapper) {
+        mGlobalItemDTOMapper = globalItemDTOMapper;
+    }
+
     @Override
     public RealmDTO convertToDTO(RealmPOJO pojo) {
         RealmDTO dto = new RealmDTO();
@@ -18,6 +29,11 @@ public class RealmDTOMapper implements BaseDTOMapper<RealmPOJO, RealmDTO> {
         dto.setCurrencyId(pojo.getCurrency().getId());
         dto.setCurrencyTrigram(pojo.getCurrency().getTrigram());
         dto.setCurrencyName(pojo.getCurrency().getName());
+        dto.setLocationList(pojo.getLocationList());
+        List<GlobalItemDTO> globalItemDTOList = new ArrayList<>();
+        pojo.getGlobalItemList().forEach(globalItem -> {
+            globalItemDTOList.add(mGlobalItemDTOMapper.convertToDTO(globalItem));
+        });
 
         return dto;
     }
@@ -40,8 +56,15 @@ public class RealmDTOMapper implements BaseDTOMapper<RealmPOJO, RealmDTO> {
         currency.setTrigram(dto.getCurrencyTrigram());
         currency.setName(dto.getCurrencyName());
 
+        List<GlobalItem> globalItemList = new ArrayList<>();
+        dto.getGlobalItemList().forEach(globalItemDTO -> {
+            globalItemList.add(mGlobalItemDTOMapper.convertToPOJO(globalItemDTO));
+        });
+
         pojo.setRealm(realm);
         pojo.setCurrency(currency);
+        pojo.setLocationList(dto.getLocationList());
+        pojo.setGlobalItemList(globalItemList);
 
         return pojo;
     }
