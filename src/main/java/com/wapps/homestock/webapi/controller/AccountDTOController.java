@@ -120,7 +120,7 @@ public class AccountDTOController extends BaseController {
     @DeleteMapping("/account/{id}")
     public ResponseEntity deleteAccount(@PathVariable("id") final Long id) throws NotFoundException {
         try {
-            mAccountService.deleteEmployee(id);
+            mAccountService.deleteAccount(id);
             return new ResponseEntity(null, HttpStatus.FOUND);
         } catch (NotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);

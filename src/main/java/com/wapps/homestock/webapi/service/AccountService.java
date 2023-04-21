@@ -46,7 +46,7 @@ public class AccountService {
         throw new NotFoundException(UPDATE, "account", account.getId().toString());
     }
 
-    public void deleteEmployee(final Long id) throws NotFoundException {
+    public void deleteAccount(final Long id) throws NotFoundException {
         if (mAccount.existsById(id))
             mAccount.deleteById(id);
         throw new NotFoundException(DELETE, "account", id.toString());
