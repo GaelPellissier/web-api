@@ -1,5 +1,6 @@
 package com.wapps.homestock.webapi.controller;
 
+import com.wapps.homestock.lib.base.BaseController;
 import com.wapps.homestock.lib.dto.RealmDTO;
 import com.wapps.homestock.lib.exception.AlreadyExistsException;
 import com.wapps.homestock.lib.exception.NotFoundException;
@@ -19,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-public class RealmDTOController {
+public class RealmDTOController extends BaseController {
     @Autowired
     private RealmService mRealmService;
     @Autowired
@@ -32,8 +33,7 @@ public class RealmDTOController {
         RealmPOJO pojo = mRealmMapper.convertToPOJO(realmDTO);
 
         Long currencyId = pojo.getRealm().getCurrencyId();
-        if (currencyId == null)
-            currencyId = Long.valueOf(1);
+        currencyId = checkLong(currencyId, Long.valueOf(1));
 
         try {
             pojo.setCurrency(mCurrencyService.getCurrency(currencyId).get());
@@ -108,8 +108,7 @@ public class RealmDTOController {
         RealmPOJO pojo = mRealmMapper.convertToPOJO(realmDTO);
 
         Long currencyId = realmDTO.getCurrencyId();
-        if (currencyId == null)
-            currencyId = Long.valueOf(1);
+        currencyId = checkLong(currencyId, Long.valueOf(1));
 
         try {
             Realm currentRealm = mRealmService.getRealm(id).get();
@@ -117,13 +116,13 @@ public class RealmDTOController {
             pojo.setCurrency(currentCurrency);
             currentRealm.setCurrencyId(currencyId);
 
-            if (realmDTO.getOwnerId() != null)
+            if (checkLong(realmDTO.getOwnerId()))
                 currentRealm.setOwnerId(realmDTO.getOwnerId());
-            if (realmDTO.getMaxLocationNumber() != 0)
+            if (checkInt(realmDTO.getMaxLocationNumber()))
                 currentRealm.setMaxLocationNumber(realmDTO.getMaxLocationNumber());
-            if (realmDTO.getName() != null)
+            if (checkString(realmDTO.getName()))
                 currentRealm.setName(realmDTO.getName());
-            if (realmDTO.getDescription() != null)
+            if (checkString(realmDTO.getDescription()))
                 currentRealm.setDescription(realmDTO.getDescription());
             currentRealm.setLastModificationDate(new Date());
 

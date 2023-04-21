@@ -91,8 +91,7 @@ public class AccountDTOController extends BaseController {
     public ResponseEntity updateAccount(@PathVariable("id") final Long id, @RequestBody AccountDTO accountDTO) throws NotFoundException {
         AccountPOJO pojo = mAccountMapper.convertToPOJO(accountDTO);
         Long typeId = accountDTO.getTypeId();
-        if (!checkLong(typeId))
-            typeId = Long.valueOf(1);
+        typeId = checkLong(typeId, Long.valueOf(1));
 
         try {
             Account currentAccount = mAccountService.getAccount(id).get();
