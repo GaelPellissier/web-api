@@ -1,5 +1,6 @@
 package com.wapps.homestock.webapi.controller;
 
+import com.wapps.homestock.lib.base.BaseController;
 import com.wapps.homestock.lib.dto.AccountDTO;
 import com.wapps.homestock.lib.exception.AlreadyExistsException;
 import com.wapps.homestock.lib.exception.NotFoundException;
@@ -17,10 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-public class AccountDTOController {
+public class AccountDTOController extends BaseController {
     @Autowired
     private AccountService mAccountService;
     @Autowired
@@ -37,25 +37,27 @@ public class AccountDTOController {
         AccountPOJO pojo = mAccountMapper.convertToPOJO(accountDTO);
 
         Long typeId = pojo.getAccount().getTypeId();
-        if (typeId == null)
-            typeId = Long.valueOf(1);
-        pojo.setAccountType(mAccountTypeService.getAccountType(typeId).get());
-
-        pojo.getAccount().setCreationDate(new Date());
-        pojo.getAccount().setTypeId(pojo.getAccountType().getId());
+        typeId = checkLong(typeId, Long.valueOf(1));
 
         try {
+            pojo.setAccountType(mAccountTypeService.getAccountType(typeId).get());
+            pojo.getAccount().setCreationDate(new Date());
+            pojo.getAccount().setTypeId(pojo.getAccountType().getId());
+
             pojo.setAccount(mAccountService.saveAccount(pojo.getAccount()));
+
             return new ResponseEntity(mAccountMapper.convertToDTO(pojo), HttpStatus.CREATED);
         } catch (AlreadyExistsException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (NotFoundException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/account/{id}")
     public ResponseEntity getAccount(@PathVariable("id") final Long id) throws NotFoundException {
         try {
-            Account account = mAccountService.getAccount(id).orElse(null);
+            Account account = mAccountService.getAccount(id).get();
             AccountType accountType = mAccountTypeService.getAccountType(account.getTypeId()).get();
             AccountPOJO pojo = new AccountPOJO(account, accountType);
 
@@ -67,57 +69,53 @@ public class AccountDTOController {
 
     @GetMapping("/accounts")
     public ResponseEntity getAccounts() throws NotFoundException {
-        Iterable<Account> accountList = mAccountService.getAccounts();
-        Iterable<AccountType>typelist = mAccountTypeService.getAccountTypes();
-        List<AccountDTO> dtoList = new ArrayList<>();
-        accountList.forEach(account -> {
-            AccountPOJO item = new AccountPOJO();
-            item.setAccount(account);
-            typelist.forEach(type -> {
-                if (type.getId() == account.getTypeId()) {
-                    item.setAccountType(type);
-                }
+        try {
+            Iterable<Account> accountList = mAccountService.getAccounts();
+            List<AccountDTO> dtoList = new ArrayList<>();
+            accountList.forEach(account -> {
+                AccountPOJO pojo = new AccountPOJO();
+                pojo.setAccount(account);
+                Long typeId = account.getTypeId();
+                pojo.setAccountType(mAccountTypeService.getAccountType(typeId).get());
+
+                dtoList.add(mAccountMapper.convertToDTO(pojo));
             });
 
-            dtoList.add(mAccountMapper.convertToDTO(item));
-        });
-
-        return new ResponseEntity(dtoList, HttpStatus.FOUND);
+            return new ResponseEntity(dtoList, HttpStatus.FOUND);
+        } catch (NotFoundException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/account/{id}")
     public ResponseEntity updateAccount(@PathVariable("id") final Long id, @RequestBody AccountDTO accountDTO) throws NotFoundException {
-        Optional<Account> a = mAccountService.getAccount(id);
-        if (a.isPresent()) {
-            AccountPOJO pojo = mAccountMapper.convertToPOJO(accountDTO);
-            Account currentAccount = a.get();
-            Long typeId = accountDTO.getTypeId();
-            Optional<AccountType> type = mAccountTypeService.getAccountType(typeId);
-            if (typeId == null || !type.isPresent()) {
-                typeId = Long.valueOf(1);
-                type = mAccountTypeService.getAccountType(typeId);
-            }
-            pojo.setAccountType(type.get());
+        AccountPOJO pojo = mAccountMapper.convertToPOJO(accountDTO);
+        Long typeId = accountDTO.getTypeId();
+        if (!checkLong(typeId))
+            typeId = Long.valueOf(1);
+
+        try {
+            Account currentAccount = mAccountService.getAccount(id).get();
+            AccountType type = mAccountTypeService.getAccountType(typeId).get();
+            pojo.setAccountType(type);
             currentAccount.setTypeId(typeId);
 
-            String username = accountDTO.getUsername();
-            if (username != null)
-                currentAccount.setUserName(username);
-            String password = accountDTO.getPassword();
-            if (password != null)
-                currentAccount.setPassword(password);
-            String email = accountDTO.getEmail();
-            if (email != null)
-                currentAccount.setEmail(email);
+            if (checkString(accountDTO.getUsername()))
+                currentAccount.setUserName(accountDTO.getUsername());
+            if (checkString(accountDTO.getPassword()))
+                currentAccount.setPassword(accountDTO.getPassword());
+            if (checkString(accountDTO.getEmail()))
+                currentAccount.setEmail(accountDTO.getEmail());
             currentAccount.setLastModificationDate(new Date());
 
             mAccountService.updateAccount(currentAccount);
-
             pojo.setAccount(currentAccount);
+
             return new ResponseEntity(mAccountMapper.convertToDTO(pojo), HttpStatus.FOUND);
         }
-        else
-            return null;
+        catch (NotFoundException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/account/{id}")
