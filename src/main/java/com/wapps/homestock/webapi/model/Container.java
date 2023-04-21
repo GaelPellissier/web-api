@@ -16,5 +16,8 @@ public class Container {
     private String description;
     @Column(name = "creation_date")
     private Date creationDate;
+    @Column(name = "last_modification_date")
+    private Date lastModificationDate;
+
     //private HashMap<Integer, String> mItemList;
 }
